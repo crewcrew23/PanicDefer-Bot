@@ -11,6 +11,7 @@ type Config struct {
 	BotToken   string `yaml:"bot_token" env-required:"true"`
 	RabbitHost string `yaml:"rabbit_host" env-required:"true"`
 	Env        string `yaml:"env" env-required:"true"`
+	DbPath     string `yaml:"db" env-required:"true"`
 }
 
 func MustLoad() *Config {

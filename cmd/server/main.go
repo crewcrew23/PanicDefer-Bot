@@ -46,7 +46,7 @@ func main() {
 }
 
 func sendTo(text string, update tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logger) {
-	slogger.Info(
+	slogger.Debug(
 		"RESPONCE",
 		slog.Int("SEND TO ChatID: ",
 			int(update.Message.Chat.ID)),
