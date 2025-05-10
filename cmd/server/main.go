@@ -2,10 +2,13 @@ package main
 
 import (
 	"log/slog"
+	mqproducer "service-healthz-checker/internal/MQ/producer"
 	"service-healthz-checker/internal/command"
 	"service-healthz-checker/internal/config"
 	"service-healthz-checker/internal/errs"
 	"service-healthz-checker/internal/logger"
+	requestmodel "service-healthz-checker/internal/model/requestModel"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -13,17 +16,10 @@ import (
 func main() {
 	cfg := config.MustLoad()
 	slogger := logger.SetupLogger(cfg.Env)
+	bot, updates := setupBot(cfg.BotToken, slogger)
 
-	bot, err := tgbotapi.NewBotAPI(cfg.BotToken)
-	errs.FailOnError(err, "failed connect to TG BOT")
-
-	bot.Debug = true
-	slogger.Debug("Authorized on account", slog.String("username", bot.Self.UserName))
-
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates := bot.GetUpdatesChan(u)
+	topic := "worker-handler"
+	producer := mqproducer.New(topic, cfg.RabbitHost, slogger)
 
 	for update := range updates {
 		if update.Message != nil {
@@ -31,21 +27,55 @@ func main() {
 				slog.String("User: ", update.Message.From.UserName),
 				slog.String("TEXT: ", update.Message.Text))
 
-			switch update.Message.Command() {
-			case command.ADD:
-				sendTo("add command", update, bot, slogger)
-			case command.LIST:
-				sendTo("list command", update, bot, slogger)
-			case command.REMOVE:
-				sendTo("remove command", update, bot, slogger)
-			default:
-				sendTo("unknown command", update, bot, slogger)
-			}
+			reqModel := parseCommand(&update, bot, slogger)
+			producer.WriteToTopic("", reqModel)
 		}
 	}
 }
 
-func sendTo(text string, update tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logger) {
+func setupBot(token string, log *slog.Logger) (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
+	bot, err := tgbotapi.NewBotAPI(token)
+	errs.FailOnError(err, "failed connect to TG BOT")
+
+	bot.Debug = true
+	log.Debug("Authorized on account", slog.String("username", bot.Self.UserName))
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	updates := bot.GetUpdatesChan(u)
+
+	return bot, updates
+}
+
+func parseCommand(upt *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logger) *requestmodel.RequestCommand {
+	if upt.Message.Command() == command.LIST {
+		return &requestmodel.RequestCommand{
+			Command: command.LIST,
+			Value:   "",
+			ChatID:  upt.Message.Chat.ID,
+		}
+	}
+
+	if upt.Message.Command() != command.ADD && upt.Message.Command() != command.REMOVE {
+		sendTo("Неизвестная команда", upt, bot, slogger)
+		return nil
+	}
+
+	spliVal := strings.Split(upt.Message.Text, " ")
+	if len(spliVal) != 2 {
+		sendTo("Введите параметр для команды", upt, bot, slogger)
+		return nil
+	}
+
+	return &requestmodel.RequestCommand{
+		Command: upt.Message.Command(),
+		Value:   spliVal[1],
+		ChatID:  upt.Message.Chat.ID,
+	}
+}
+
+func sendTo(text string, update *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logger) {
 	slogger.Debug(
 		"RESPONCE",
 		slog.Int("SEND TO ChatID: ",
