@@ -28,6 +28,9 @@ func main() {
 				slog.String("TEXT: ", update.Message.Text))
 
 			reqModel := parseCommand(&update, bot, slogger)
+			if reqModel == nil {
+				continue
+			}
 			producer.WriteToTopic("", reqModel)
 		}
 	}
@@ -57,7 +60,10 @@ func parseCommand(upt *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logg
 		}
 	}
 
-	if upt.Message.Command() != command.ADD && upt.Message.Command() != command.REMOVE {
+	if upt.Message.Command() != command.ADD &&
+		upt.Message.Command() != command.REMOVE &&
+		upt.Message.Command() != command.GET &&
+		upt.Message.Command() != command.CH {
 		sendTo("Неизвестная команда", upt, bot, slogger)
 		return nil
 	}

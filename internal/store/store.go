@@ -6,8 +6,9 @@ import (
 )
 
 type Store interface {
-	Save(model requestmodel.Service) error
+	Save(model *requestmodel.Service) error
 	AllUserServices(chatId int64) ([]*dbmodel.Service, error)
-	ServiceInfoById(id int64) (*dbmodel.Service, error)
-	RemoveService(id int64, chatId int64) error
+	ServiceInfoById(id, chatId int64) (*dbmodel.Service, error)
+	RemoveService(id, chatId int64) error
+	ChangeActiveSet(id, chatId int64) error
 }
