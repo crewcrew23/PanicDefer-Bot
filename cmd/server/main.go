@@ -18,8 +18,7 @@ func main() {
 	slogger := logger.SetupLogger(cfg.Env)
 	bot, updates := setupBot(cfg.BotToken, slogger)
 
-	topic := "worker-handler"
-	producer := mqproducer.New(topic, cfg.RabbitHost, slogger)
+	producer := mqproducer.New(cfg.MqConfig.Topics.FromServerTopic, cfg.MqConfig.Host, slogger)
 
 	for update := range updates {
 		if update.Message != nil {

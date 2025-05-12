@@ -1,0 +1,8 @@
+bot_token: <token>
+env: <one from>(debug, prod, warn, err)
+db: <postgresql_host>
+rabbitMQ:
+  host: <mq_host>
+  topic:
+    fromServerName: <topic_name> 
+    fromWorkerName: <topic_name>

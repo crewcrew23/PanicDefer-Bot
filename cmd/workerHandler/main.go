@@ -29,8 +29,7 @@ func main() {
 	bot.Debug = true
 	slogger.Debug("Authorized on account", slog.String("username", bot.Self.UserName))
 
-	topic := "worker-handler"
-	consumer := mqconsumer.New(topic, cfg.RabbitHost, slogger)
+	consumer := mqconsumer.New(cfg.MqConfig.Topics.FromServerTopic, cfg.MqConfig.Host, slogger)
 
 	db, err := sqlx.Open("postgres", cfg.DbPath)
 	if err != nil {
@@ -41,7 +40,7 @@ func main() {
 	store := sqlstore.New(db, slogger)
 	service := service.New(store, slogger, bot)
 
-	msgs, err := consumer.Consume(topic + "_1")
+	msgs, err := consumer.Consume(cfg.MqConfig.Topics.FromServerTopic)
 	if err != nil {
 		panic(err)
 	}

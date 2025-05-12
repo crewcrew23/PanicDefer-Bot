@@ -8,10 +8,20 @@ import (
 )
 
 type Config struct {
-	BotToken   string `yaml:"bot_token" env-required:"true"`
-	RabbitHost string `yaml:"rabbit_host" env-required:"true"`
-	Env        string `yaml:"env" env-required:"true"`
-	DbPath     string `yaml:"db" env-required:"true"`
+	BotToken string   `yaml:"bot_token" env-required:"true"`
+	MqConfig MQConfig `yaml:"rabbitMQ" env-required:"true"`
+	Env      string   `yaml:"env" env-required:"true"`
+	DbPath   string   `yaml:"db" env-required:"true"`
+}
+
+type MQConfig struct {
+	Host   string     `yaml:"host" env-required:"true"`
+	Topics TopicsConf `yaml:"topic" env-required:"true"`
+}
+
+type TopicsConf struct {
+	FromServerTopic string `yaml:"fromServerName" env-required:"true"`
+	FromWorkerTopic string `yaml:"fromWorkerName" env-required:"true"`
 }
 
 func MustLoad() *Config {
