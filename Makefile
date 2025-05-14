@@ -1,4 +1,4 @@
-.PHONY: vet test run-server run-handler docker-up docker-down migrate
+.PHONY: vet test run-server run-handler run-worker docker-up docker-down migrate
 
 vet:
 	go vet ./...
@@ -11,6 +11,9 @@ run-server:
 
 run-handler:
 	go run .\cmd\workerHandler\main.go --config .\config\local.yaml
+
+run-worker:
+	go run .\cmd\workerHealthzChecker\main.go --config .\config\local.yaml
 
 migrate:
 	 go run .\cmd\migrator\main.go --db-url postgres://user:pass@host:port/dbname

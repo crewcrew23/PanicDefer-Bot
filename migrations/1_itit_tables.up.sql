@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS services (
 );
 
 CREATE INDEX IF NOT EXISTS idx_services_chat_id ON services(chat_id);
+CREATE INDEX CONCURRENTLY idx_services_active_last_ping ON services(is_active, last_ping);

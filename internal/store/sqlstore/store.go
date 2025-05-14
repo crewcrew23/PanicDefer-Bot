@@ -23,14 +23,15 @@ func New(db *sqlx.DB, log *slog.Logger) *Store {
 }
 
 func (s *Store) Save(model *requestmodel.Service) error {
-	var zeroTime time.Time
 	service := &dbmodel.Service{
 		Url:            model.Url,
 		ChatID:         model.ChatID,
-		LastPing:       zeroTime,
+		LastPing:       time.Time{},
 		LastStatus:     0,
 		ResponseTimeMs: 0,
 		IsActive:       true,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 
 	_, err := s.db.NamedExec(query.CREATE_SERVICE_Q, service)
@@ -127,4 +128,38 @@ func (s *Store) ChangeActiveSet(id, chatId int64) error {
 	}
 
 	return nil
+}
+
+func (s *Store) DataForPing() ([]*dbmodel.Service, error) {
+	var services []*dbmodel.Service
+	err := s.db.Select(&services, query.SELECT_DATA_FOR_PING)
+	if err != nil {
+		s.log.Debug("Error from DataForPing Method:")
+		s.log.Debug("Error", slog.String("Value", err.Error()))
+		return nil, dberrs.ErrGetRows
+	}
+
+	if len(services) == 0 {
+		s.log.Debug("WARN", slog.String("MSG", "no rows is db"))
+		return nil, nil
+	}
+
+	s.log.Info("GET DATA OK")
+	return services, nil
+}
+
+func (s *Store) UpdateData(data []*dbmodel.Service) {
+	if len(data) == 0 {
+		return
+	}
+
+	for _, v := range data {
+		v.LastPing = time.Now()
+		v.UpdatedAt = time.Now()
+
+		_, err := s.db.NamedExec(query.UPDATE_DATA, v)
+		if err != nil {
+			s.log.Debug("FAILED TO UPDATE DATA", slog.String("ERROR", err.Error()))
+		}
+	}
 }

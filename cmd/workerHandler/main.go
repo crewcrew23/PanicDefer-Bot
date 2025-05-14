@@ -38,7 +38,7 @@ func main() {
 	defer db.Close()
 
 	store := sqlstore.New(db, slogger)
-	service := service.New(store, slogger, bot)
+	service := service.NewDomainService(store, slogger, bot)
 
 	msgs, err := consumer.Consume(cfg.MqConfig.Topics.FromServerTopic)
 	if err != nil {
@@ -59,10 +59,11 @@ func main() {
 		case command.ADD:
 			serviceModel := &requestmodel.Service{ChatID: reqModel.ChatID, Url: reqModel.Value}
 			err := service.Save(serviceModel)
-			if err == nil {
-				sendMessage(reqModel.ChatID, "Данные сохранены", bot)
+			if err != nil {
 				continue
 			}
+
+			sendMessage(reqModel.ChatID, "Данные сохранены", bot)
 			continue
 		case command.REMOVE:
 			convINT, _ := strconv.Atoi(reqModel.Value)

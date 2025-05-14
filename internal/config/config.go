@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	BotToken string   `yaml:"bot_token" env-required:"true"`
-	MqConfig MQConfig `yaml:"rabbitMQ" env-required:"true"`
-	Env      string   `yaml:"env" env-required:"true"`
-	DbPath   string   `yaml:"db" env-required:"true"`
+	BotToken   string   `yaml:"bot_token" env-required:"true"`
+	MqConfig   MQConfig `yaml:"rabbitMQ" env-required:"true"`
+	Env        string   `yaml:"env" env-required:"true"`
+	DbPath     string   `yaml:"db" env-required:"true"`
+	TimeToPing int      `yaml:"time_to_ping" env-required:"true"`
 }
 
 type MQConfig struct {

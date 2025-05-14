@@ -18,7 +18,7 @@ type DomainService struct {
 	bot   *tgbotapi.BotAPI
 }
 
-func New(store store.Store, log *slog.Logger, bot *tgbotapi.BotAPI) *DomainService {
+func NewDomainService(store store.Store, log *slog.Logger, bot *tgbotapi.BotAPI) *DomainService {
 	return &DomainService{store: store, log: log, bot: bot}
 }
 
