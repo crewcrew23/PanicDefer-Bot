@@ -5,6 +5,7 @@ import (
 	"net/http"
 	dbmodel "service-healthz-checker/internal/model/dbModel"
 	"service-healthz-checker/internal/service"
+	"strings"
 	"time"
 )
 
@@ -21,6 +22,7 @@ func worker(id int, jobs <-chan Job, results chan<- Result, log *slog.Logger) {
 	log.Info("Start Worker", slog.Int("ID", id))
 	for job := range jobs {
 		start := time.Now()
+		job.Item.Url = normalizeURL(job.Item.Url)
 		res, err := http.Get(job.Item.Url)
 		duration := time.Since(start)
 
@@ -67,4 +69,26 @@ func RunPool(service *service.PingService, log *slog.Logger, concurrency int, in
 		service.UpdateData(updated)
 		time.Sleep(interval)
 	}
+}
+
+func normalizeURL(url string) string {
+	if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+		return url
+	}
+
+	if isReachable("https://" + url) {
+		return "https://" + url
+	}
+
+	return "http://" + url
+}
+
+func isReachable(url string) bool {
+	res, err := http.Get(url)
+	if err != nil {
+		return false
+	}
+	res.Body.Close()
+
+	return res.StatusCode < 500
 }
