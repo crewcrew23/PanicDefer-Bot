@@ -10,6 +10,7 @@ type Service struct {
 	LastStatus     int       `db:"last_status"`
 	ResponseTimeMs int       `db:"response_time_ms"`
 	IsActive       bool      `db:"is_active"`
+	LastErrMsg     time.Time `db:"last_err_msg"`
 	CreatedAt      time.Time `db:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at"`
 }

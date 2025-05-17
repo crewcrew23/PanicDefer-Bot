@@ -1,10 +1,12 @@
 package workerpool
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	dbmodel "service-healthz-checker/internal/model/dbModel"
 	"service-healthz-checker/internal/service"
+	"service-healthz-checker/internal/service/notification"
 	"strings"
 	"time"
 )
@@ -18,33 +20,39 @@ type Result struct {
 	Err  error
 }
 
-func worker(id int, jobs <-chan Job, results chan<- Result, log *slog.Logger) {
+func worker(id int, jobs <-chan Job, results chan<- Result, notifier *notification.TGNotifier, log *slog.Logger) {
 	log.Info("Start Worker", slog.Int("ID", id))
 	for job := range jobs {
 		start := time.Now()
-		job.Item.Url = normalizeURL(job.Item.Url)
-		res, err := http.Get(job.Item.Url)
+		res, err := http.Get(normalizeURL(job.Item.Url))
 		duration := time.Since(start)
 
 		if err != nil {
 			log.Warn("Request failed", slog.String("url", job.Item.Url), slog.String("error", err.Error()))
+			now := time.Now().UTC()
+			log.Info("time", slog.String("time", fmt.Sprintf("%v", now.Sub(job.Item.LastErrMsg).Hours())))
+			if now.Sub(job.Item.LastErrMsg).Minutes() >= 1 {
+				notifier.Send(job.Item.ChatID, job.Item.Url, err.Error())
+				job.Item.LastErrMsg = time.Now().UTC()
+			}
 			results <- Result{Item: job.Item, Err: err}
 			continue
 		}
 
 		res.Body.Close()
 		job.Item.LastStatus = res.StatusCode
-		job.Item.ResponseTimeMs = int(duration.Microseconds())
+		job.Item.ResponseTimeMs = int(duration.Milliseconds())
+		job.Item.UpdatedAt = time.Now().UTC()
 		results <- Result{Item: job.Item, Err: nil}
 	}
 }
 
-func RunPool(service *service.PingService, log *slog.Logger, concurrency int, interval time.Duration) {
+func RunPool(service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger, concurrency int, interval time.Duration) {
 	jobs := make(chan Job)
 	results := make(chan Result)
 
 	for w := 0; w < concurrency; w++ {
-		go worker(w, jobs, results, log)
+		go worker(w, jobs, results, notifier, log)
 	}
 
 	for {

@@ -9,6 +9,7 @@ const (
 		response_time_ms, 
 		is_active,
 		last_ping,
+		last_err_msg,
 		updated_at,
 		created_at
 	)
@@ -19,6 +20,7 @@ const (
 		:response_time_ms, 
 		:is_active,
 		:last_ping,
+		:last_err_msg,
 		:updated_at,
 		:created_at
 	)`
@@ -47,13 +49,13 @@ const (
 
 	SELECT_DATA_FOR_PING = `
     SELECT id, url, chat_id, last_ping, last_status, 
-           response_time_ms, is_active, created_at, updated_at 
+           response_time_ms, is_active, last_err_msg, created_at, updated_at 
     FROM services
     WHERE 
         is_active = TRUE 
         AND (
             last_ping IS NULL 
-            OR last_ping < NOW() - INTERVAL '1 seconds'
+            OR last_ping < NOW() - INTERVAL '5 seconds'
         )
 `
 
@@ -66,6 +68,7 @@ const (
 		last_status = :last_status,
 		response_time_ms = :response_time_ms,
 		is_active = :is_active,
+		last_err_msg = :last_err_msg,
 		last_ping = :last_ping,
 		updated_at = :updated_at
 	WHERE id = :id

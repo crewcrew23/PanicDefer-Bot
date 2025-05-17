@@ -1,0 +1,1 @@
+CREATE INDEX CONCURRENTLY idx_services_active_last_ping ON services(is_active, last_ping);

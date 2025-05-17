@@ -5,6 +5,7 @@ import (
 	"service-healthz-checker/internal/config"
 	"service-healthz-checker/internal/logger"
 	"service-healthz-checker/internal/service"
+	"service-healthz-checker/internal/service/notification"
 	workerpool "service-healthz-checker/internal/service/workerPool"
 	"service-healthz-checker/internal/store/sqlstore"
 	"time"
@@ -24,6 +25,7 @@ func main() {
 
 	store := sqlstore.New(db, slogger)
 	service := service.NewPingService(store, slogger)
+	notifier := notification.NewTGNotifier(cfg.BotToken, slogger)
 
-	workerpool.RunPool(service, slogger, 5, time.Duration(cfg.TimeToPing)*time.Millisecond)
+	workerpool.RunPool(service, notifier, slogger, 5, time.Duration(cfg.TimeToPing)*time.Millisecond)
 }

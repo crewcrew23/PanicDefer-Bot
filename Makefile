@@ -16,7 +16,7 @@ run-worker:
 	go run .\cmd\workerHealthzChecker\main.go --config .\config\local.yaml
 
 migrate:
-	 go run .\cmd\migrator\main.go --db-url postgres://user:pass@host:port/dbname
+	go run .\cmd\migrator\main.go --db-url postgres://user:pass@host:port/dbname
 
 docker-up:
 	docker-compose up --build --detach

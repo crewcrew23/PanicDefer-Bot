@@ -30,8 +30,9 @@ func (s *Store) Save(model *requestmodel.Service) error {
 		LastStatus:     0,
 		ResponseTimeMs: 0,
 		IsActive:       true,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
+		LastErrMsg:     time.Now().UTC().Add(-time.Hour),
+		CreatedAt:      time.Now().UTC(),
+		UpdatedAt:      time.Now().UTC(),
 	}
 
 	_, err := s.db.NamedExec(query.CREATE_SERVICE_Q, service)
