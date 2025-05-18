@@ -14,12 +14,13 @@ import (
 )
 
 type Store struct {
-	db  *sqlx.DB
-	log *slog.Logger
+	db         *sqlx.DB
+	timeToPing int
+	log        *slog.Logger
 }
 
-func New(db *sqlx.DB, log *slog.Logger) *Store {
-	return &Store{db: db, log: log}
+func New(db *sqlx.DB, timeToPing int, log *slog.Logger) *Store {
+	return &Store{db: db, timeToPing: timeToPing, log: log}
 }
 
 func (s *Store) Save(model *requestmodel.Service) error {
@@ -133,7 +134,7 @@ func (s *Store) ChangeActiveSet(id, chatId int64) error {
 
 func (s *Store) DataForPing() ([]*dbmodel.Service, error) {
 	var services []*dbmodel.Service
-	err := s.db.Select(&services, query.SELECT_DATA_FOR_PING)
+	err := s.db.Select(&services, query.SELECT_DATA_FOR_PING, s.timeToPing/1000) //devision by 1000 because s.timeToPing has time in ms
 	if err != nil {
 		s.log.Debug("Error from DataForPing Method:")
 		s.log.Debug("Error", slog.String("Value", err.Error()))

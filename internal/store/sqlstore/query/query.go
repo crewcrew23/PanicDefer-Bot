@@ -1,5 +1,8 @@
 package query
 
+type Query struct {
+}
+
 const (
 	CREATE_SERVICE_Q = `
 	INSERT INTO services (
@@ -55,7 +58,7 @@ const (
         is_active = TRUE 
         AND (
             last_ping IS NULL 
-            OR last_ping < NOW() - INTERVAL '5 seconds'
+            OR last_ping < NOW() - ($1 * INTERVAL '1 second')
         )
 `
 

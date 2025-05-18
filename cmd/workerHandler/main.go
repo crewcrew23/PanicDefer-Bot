@@ -37,7 +37,7 @@ func main() {
 	}
 	defer db.Close()
 
-	store := sqlstore.New(db, slogger)
+	store := sqlstore.New(db, cfg.TimeToPing, slogger)
 	service := service.NewDomainService(store, slogger, bot)
 
 	msgs, err := consumer.Consume(cfg.MqConfig.Topics.FromServerTopic)
