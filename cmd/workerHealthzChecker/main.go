@@ -23,7 +23,7 @@ func main() {
 	}
 	defer db.Close()
 
-	store := sqlstore.New(db, slogger)
+	store := sqlstore.New(db, cfg.TimeToPing, slogger)
 	service := service.NewPingService(store, slogger)
 	notifier := notification.NewTGNotifier(cfg.BotToken, slogger)
 
