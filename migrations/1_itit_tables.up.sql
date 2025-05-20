@@ -11,4 +11,6 @@ CREATE TABLE IF NOT EXISTS services (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
 CREATE INDEX IF NOT EXISTS idx_services_chat_id ON services(chat_id);

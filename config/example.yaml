@@ -1,7 +1,7 @@
 bot_token: <token>
 env: <one from>(debug, dev, prod)
-db: <postgresql_host>
-time_to_ping: <time to ms>  (default 5000)
+db: <postgresql_host> #for local test ?sslmode=disable
+time_to_ping: <time to ms>  #(default 60000 / 1 minutes )
 rabbitMQ:
   host: <mq_host>
   topic:

@@ -165,3 +165,20 @@ func (s *Store) UpdateData(data []*dbmodel.Service) {
 		}
 	}
 }
+
+func (s *Store) SaveHistory(data []*dbmodel.Service) {
+	for _, v := range data {
+		h := &dbmodel.History{
+			Url:            v.Url,
+			ChatId:         v.ChatID,
+			Status:         v.LastStatus,
+			ResponseTimeMs: v.ResponseTimeMs,
+			CreatedAt:      time.Now().UTC(),
+		}
+
+		_, err := s.db.NamedExec(query.SAVE_HISTORY_DATA, h)
+		if err != nil {
+			s.log.Debug("FAILED TO SAVE HISTORY DATA", slog.String("ERROR", err.Error()))
+		}
+	}
+}
