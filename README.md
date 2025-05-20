@@ -13,11 +13,11 @@
 ### ✅ Implemented
 - 🏓 Continuous service pinging with statistics collection
 - 📅 Save last ping statistic 
+- 🔔 Real-time notifications when services go down
 
 ### 🚧 Planned Features
 - 📊 Historical ping data visualization
 - 📈 Performance metrics tracking
-- 🔔 Real-time notifications when services go down
 - ⚠️ Warning system for abnormal response times
 
 

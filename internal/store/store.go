@@ -16,4 +16,5 @@ type Store interface {
 	//pinger worker
 	DataForPing() ([]*dbmodel.Service, error)
 	UpdateData([]*dbmodel.Service)
+	SaveHistory([]*dbmodel.Service)
 }

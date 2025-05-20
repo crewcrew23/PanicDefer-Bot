@@ -62,7 +62,6 @@ const (
         )
 `
 
-	//minute
 	UPDATE_DATA = `
 	UPDATE services
 	SET 
@@ -75,5 +74,22 @@ const (
 		last_ping = :last_ping,
 		updated_at = :updated_at
 	WHERE id = :id
+	`
+
+	SAVE_HISTORY_DATA = `
+	INSERT INTO history (
+		url,
+		chat_id,
+		status,
+		response_time_ms,
+		created_at
+	)
+	VALUES (
+		:url,
+		:chat_id,
+		:status,
+		:response_time_ms,
+		:created_at
+	)
 	`
 )

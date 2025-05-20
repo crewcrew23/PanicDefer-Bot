@@ -32,3 +32,7 @@ func (p *PingService) DataForPing() []*dbmodel.Service {
 func (p *PingService) UpdateData(data []*dbmodel.Service) {
 	p.store.UpdateData(data)
 }
+
+func (p *PingService) SaveHistory(data []*dbmodel.Service) {
+	p.store.SaveHistory(data)
+}

@@ -13,6 +13,7 @@ type Config struct {
 	Env        string   `yaml:"env" env-required:"true"`
 	DbPath     string   `yaml:"db" env-required:"true"`
 	TimeToPing int      `yaml:"time_to_ping" env-required:"true"`
+	Worker     Worker   `yaml:"worker" env-required:"true"`
 }
 
 type MQConfig struct {
@@ -23,6 +24,11 @@ type MQConfig struct {
 type TopicsConf struct {
 	FromServerTopic string `yaml:"fromServerName" env-required:"true"`
 	FromWorkerTopic string `yaml:"fromWorkerName" env-required:"true"`
+}
+
+type Worker struct {
+	PingWorker    int `yaml:"pingWorker" env-required:"true"`
+	HistoryWorker int `yaml:"historyWorker" env-required:"true"`
 }
 
 func MustLoad() *Config {

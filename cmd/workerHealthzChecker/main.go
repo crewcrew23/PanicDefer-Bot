@@ -27,5 +27,6 @@ func main() {
 	service := service.NewPingService(store, slogger)
 	notifier := notification.NewTGNotifier(cfg.BotToken, slogger)
 
-	workerpool.RunPool(service, notifier, slogger, 5, time.Duration(cfg.TimeToPing)*time.Millisecond)
+	workerpool.RunMainPool(service, notifier, slogger, cfg.Worker.PingWorker, cfg.Worker.HistoryWorker, time.Duration(cfg.TimeToPing)*time.Millisecond)
+	go workerpool.DeleteOldWrites(db, slogger)
 }

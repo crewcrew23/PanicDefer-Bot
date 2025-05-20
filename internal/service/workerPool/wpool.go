@@ -9,6 +9,8 @@ import (
 	"service-healthz-checker/internal/service/notification"
 	"strings"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Job struct {
@@ -20,7 +22,12 @@ type Result struct {
 	Err  error
 }
 
-func worker(id int, jobs <-chan Job, results chan<- Result, notifier *notification.TGNotifier, log *slog.Logger) {
+type History struct {
+	Item *dbmodel.Service
+	Err  error
+}
+
+func mainWorker(id int, jobs <-chan Job, results chan<- Result, notifier *notification.TGNotifier, log *slog.Logger) {
 	log.Info("Start Worker", slog.Int("ID", id))
 	for job := range jobs {
 		start := time.Now()
@@ -47,12 +54,61 @@ func worker(id int, jobs <-chan Job, results chan<- Result, notifier *notificati
 	}
 }
 
-func RunPool(service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger, concurrency int, interval time.Duration) {
-	jobs := make(chan Job)
-	results := make(chan Result)
+func historyWorker(id int, results <-chan History, service *service.PingService, log *slog.Logger) {
+	log.Info("START HISTORY", slog.Int("ID", id))
+	var historyBucket []*dbmodel.Service
+	maxSize := 100
 
-	for w := 0; w < concurrency; w++ {
-		go worker(w, jobs, results, notifier, log)
+	timeout := 5 * time.Second
+	timer := time.NewTimer(timeout)
+
+	for {
+		select {
+		case result, ok := <-results:
+			if !ok {
+				if len(historyBucket) > 0 {
+					service.SaveHistory(historyBucket)
+				}
+				return
+			}
+
+			if result.Err != nil {
+				log.Error("historyWorker: failed to process result",
+					slog.String("error", result.Err.Error()),
+					slog.Int("workerID", id))
+				continue
+			}
+
+			historyBucket = append(historyBucket, result.Item)
+
+			if len(historyBucket) >= maxSize {
+				service.SaveHistory(historyBucket)
+				historyBucket = nil
+				timer.Reset(timeout)
+			}
+
+		case <-timer.C:
+			if len(historyBucket) > 0 {
+				service.SaveHistory(historyBucket)
+				historyBucket = nil
+			}
+
+			timer.Reset(timeout)
+		}
+	}
+}
+
+func RunMainPool(service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger, mainConcurrency int, historyConcurrency int, interval time.Duration) {
+	jobs := make(chan Job, 1000)
+	results := make(chan Result, 1000)
+	history := make(chan History, 1000)
+
+	for w := 0; w < mainConcurrency; w++ {
+		go mainWorker(w, jobs, results, notifier, log)
+	}
+
+	for w := 0; w < historyConcurrency; w++ {
+		go historyWorker(w, history, service, log)
 	}
 
 	for {
@@ -71,12 +127,22 @@ func RunPool(service *service.PingService, notifier *notification.TGNotifier, lo
 		var updated []*dbmodel.Service
 		for i := 0; i < len(data); i++ {
 			results := <-results
+			history <- History{Item: results.Item}
 			updated = append(updated, results.Item)
 		}
 
 		service.UpdateData(updated)
 		time.Sleep(interval)
 	}
+}
+
+func DeleteOldWrites(db *sqlx.DB, log *slog.Logger) {
+	_, err := db.Exec("DELETE FROM history WHERE created_at < NOW() - INTERVAL '1 hour'")
+	if err != nil {
+		log.Info("DB ERR OF CLEAN")
+		log.Info("DB ERR", slog.String("err", err.Error()))
+	}
+	time.Sleep(time.Hour)
 }
 
 func normalizeURL(url string) string {
