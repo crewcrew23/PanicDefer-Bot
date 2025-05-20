@@ -7,3 +7,6 @@ rabbitMQ:
   topic:
     fromServerName: <topic_name> 
     fromWorkerName: <topic_name>
+worker:
+  pingWorker: 5 #default 5: count of workers
+  historyWorker: 2 #default 2:  of workers

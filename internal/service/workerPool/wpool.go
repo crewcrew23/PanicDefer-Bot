@@ -55,7 +55,7 @@ func mainWorker(id int, jobs <-chan Job, results chan<- Result, notifier *notifi
 }
 
 func historyWorker(id int, results <-chan History, service *service.PingService, log *slog.Logger) {
-	log.Info("START HISTORY")
+	log.Info("START HISTORY", slog.Int("ID", id))
 	var historyBucket []*dbmodel.Service
 	maxSize := 100
 
@@ -67,7 +67,6 @@ func historyWorker(id int, results <-chan History, service *service.PingService,
 		case result, ok := <-results:
 			if !ok {
 				if len(historyBucket) > 0 {
-					log.Info("SAVE HISTORY")
 					service.SaveHistory(historyBucket)
 				}
 				return
@@ -81,10 +80,8 @@ func historyWorker(id int, results <-chan History, service *service.PingService,
 			}
 
 			historyBucket = append(historyBucket, result.Item)
-			log.Info("HISTORY LEN", slog.Int("L", len(historyBucket)))
 
 			if len(historyBucket) >= maxSize {
-				log.Info("SAVE HISTORY")
 				service.SaveHistory(historyBucket)
 				historyBucket = nil
 				timer.Reset(timeout)
@@ -92,7 +89,6 @@ func historyWorker(id int, results <-chan History, service *service.PingService,
 
 		case <-timer.C:
 			if len(historyBucket) > 0 {
-				log.Info("SAVE HISTORY")
 				service.SaveHistory(historyBucket)
 				historyBucket = nil
 			}
@@ -132,7 +128,6 @@ func RunMainPool(service *service.PingService, notifier *notification.TGNotifier
 		for i := 0; i < len(data); i++ {
 			results := <-results
 			history <- History{Item: results.Item}
-			log.Info("PUSH TO HISTORY CHAN")
 			updated = append(updated, results.Item)
 		}
 
