@@ -62,7 +62,8 @@ func parseCommand(upt *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logg
 	if upt.Message.Command() != command.ADD &&
 		upt.Message.Command() != command.REMOVE &&
 		upt.Message.Command() != command.GET &&
-		upt.Message.Command() != command.CH {
+		upt.Message.Command() != command.CH &&
+		upt.Message.Command() != command.HISTORY {
 		sendTo("Неизвестная команда", upt, bot, slogger)
 		return nil
 	}

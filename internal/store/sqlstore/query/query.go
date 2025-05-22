@@ -78,6 +78,7 @@ const (
 
 	SAVE_HISTORY_DATA = `
 	INSERT INTO history (
+	    service_id,
 		url,
 		chat_id,
 		status,
@@ -85,11 +86,18 @@ const (
 		created_at
 	)
 	VALUES (
+		:service_id,
 		:url,
 		:chat_id,
 		:status,
 		:response_time_ms,
 		:created_at
 	)
+	`
+
+	HISTORY_SERVICE_ID = `
+		SELECT id, service_id, url, chat_id, status, response_time_ms, created_at
+		FROM history
+		WHERE service_id = $1 AND chat_id = $2
 	`
 )

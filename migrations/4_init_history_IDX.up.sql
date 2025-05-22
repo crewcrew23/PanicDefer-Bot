@@ -1,1 +1,1 @@
-CREATE INDEX CONCURRENTLY idx_history_chat_id_created_at ON history(chat_id, created_at);
+CREATE INDEX CONCURRENTLY idx_history_chat_id_service_id ON history(service_id, chat_id);

@@ -12,6 +12,7 @@ type Store interface {
 	ServiceInfoById(id, chatId int64) (*dbmodel.Service, error)
 	RemoveService(id, chatId int64) error
 	ChangeActiveSet(id, chatId int64) error
+	History(id, chatId int64) ([]*dbmodel.History, error)
 
 	//pinger worker
 	DataForPing() ([]*dbmodel.Service, error)

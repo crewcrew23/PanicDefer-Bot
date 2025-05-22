@@ -117,6 +117,26 @@ func (d *DomainService) ChangeActiveSet(model *requestmodel.Service) error {
 	return nil
 }
 
+func (d *DomainService) History(model *requestmodel.Service) ([]*dbmodel.History, error) {
+	res, err := d.store.History(model.Id, model.ChatID)
+	if err != nil {
+		if errors.Is(err, dberrs.ErrNotEnoughtArgument) {
+			d.sendMessage(model.ChatID, "Переданно недостаточно параметров")
+			return nil, err
+		}
+
+		if errors.Is(err, dberrs.ErrGetRows) {
+			d.log.Debug("ERROR GET HISTORY FROM STORE", slog.String("ERROR", err.Error()))
+			return nil, nil
+		}
+
+		d.sendMessage(model.ChatID, "Непредвиденная ошибка")
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (d *DomainService) sendMessage(chatID int64, message string) {
 	msg := tgbotapi.NewMessage(chatID, message)
 	d.bot.Send(msg)

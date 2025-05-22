@@ -4,6 +4,7 @@ import "time"
 
 type History struct {
 	Id             int64     `db:"id"`
+	ServiceId      int64     `db:"service_id"`
 	Url            string    `db:"url"`
 	ChatId         int64     `db:"chat_id"`
 	Status         int       `db:"status"`
