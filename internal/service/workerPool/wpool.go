@@ -137,12 +137,36 @@ func RunMainPool(service *service.PingService, notifier *notification.TGNotifier
 }
 
 func DeleteOldWrites(db *sqlx.DB, log *slog.Logger) {
-	_, err := db.Exec("DELETE FROM history WHERE created_at < NOW() - INTERVAL '1 hour'")
-	if err != nil {
-		log.Info("DB ERR OF CLEAN")
-		log.Info("DB ERR", slog.String("err", err.Error()))
+	log.Info("START DB CLEANER")
+	for {
+		timeForDelete := time.Now().UTC().Add(-1 * time.Hour)
+
+		tx, err := db.Beginx()
+		if err != nil {
+			log.Error("Failed to begin transaction", "error", err)
+			return
+		}
+		defer tx.Rollback()
+		res, err := tx.Exec(`DELETE FROM history WHERE created_at < $1`, timeForDelete)
+		if err != nil {
+			log.Info("DB ERR OF CLEAN")
+			log.Info("DB ERR", slog.String("err", err.Error()))
+			return
+		}
+
+		if err := tx.Commit(); err != nil {
+			log.Error("Commit failed", "error", err)
+			return
+		}
+
+		rowsAffected, _ := res.RowsAffected()
+		if rowsAffected == 0 {
+			return
+		}
+
+		log.Info("DB WAS BE CLEANED")
+		time.Sleep(time.Minute)
 	}
-	time.Sleep(time.Hour)
 }
 
 func normalizeURL(url string) string {

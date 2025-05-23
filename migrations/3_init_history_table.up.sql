@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS history (
     id SERIAL PRIMARY KEY,
+    service_id INTEGER NOT NULL,
     url TEXT NOT NULL,
     chat_id INTEGER NOT NULL,
     status INTEGER,

@@ -170,6 +170,7 @@ func (s *Store) SaveHistory(data []*dbmodel.Service) {
 	for _, v := range data {
 		h := &dbmodel.History{
 			Url:            v.Url,
+			ServiceId:      v.Id,
 			ChatId:         v.ChatID,
 			Status:         v.LastStatus,
 			ResponseTimeMs: v.ResponseTimeMs,
@@ -181,4 +182,22 @@ func (s *Store) SaveHistory(data []*dbmodel.Service) {
 			s.log.Debug("FAILED TO SAVE HISTORY DATA", slog.String("ERROR", err.Error()))
 		}
 	}
+}
+
+func (s *Store) History(id, chatId int64) ([]*dbmodel.History, error) {
+	var history []*dbmodel.History
+	err := s.db.Select(&history, query.HISTORY_SERVICE_ID, id, chatId)
+	if err != nil {
+		s.log.Debug("Error from History Method:")
+		s.log.Debug("Error", slog.String("Value", err.Error()))
+		return nil, dberrs.ErrGetRows
+	}
+
+	if len(history) == 0 {
+		s.log.Debug("WARN", slog.String("MSG", "no rows is db"))
+		return nil, nil
+	}
+
+	s.log.Info("GET HISTORY OK")
+	return history, nil
 }

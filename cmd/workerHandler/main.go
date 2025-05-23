@@ -9,6 +9,7 @@ import (
 	"service-healthz-checker/internal/command"
 	"service-healthz-checker/internal/config"
 	"service-healthz-checker/internal/errs"
+	"service-healthz-checker/internal/lib/grapth"
 	"service-healthz-checker/internal/logger"
 	requestmodel "service-healthz-checker/internal/model/requestModel"
 	"service-healthz-checker/internal/service"
@@ -119,6 +120,28 @@ func main() {
 			text := "Статус изменён"
 			sendMessage(reqModel.ChatID, text, bot)
 			continue
+
+		case command.HISTORY:
+			convINT, _ := strconv.Atoi(reqModel.Value)
+			serviceModel := &requestmodel.Service{ChatID: reqModel.ChatID, Id: int64(convINT)}
+			res, err := service.History(serviceModel)
+			if err != nil {
+				continue
+			}
+
+			if res == nil {
+				sendMessage(serviceModel.ChatID, "Записей не найденно", bot)
+				continue
+			}
+
+			imgBytes, err := grapth.CreateGrapth(res)
+			if err != nil {
+				sendMessage(serviceModel.ChatID, "не удалось создать график", bot)
+				continue
+			}
+
+			sendPhoto(serviceModel.ChatID, imgBytes, bot)
+			continue
 		}
 
 	}
@@ -129,5 +152,13 @@ func main() {
 
 func sendMessage(chatID int64, message string, bot *tgbotapi.BotAPI) {
 	msg := tgbotapi.NewMessage(chatID, message)
+	bot.Send(msg)
+}
+
+func sendPhoto(chatID int64, photoBytes []byte, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewPhoto(chatID, tgbotapi.FileBytes{
+		Name:  "response_graph",
+		Bytes: photoBytes,
+	})
 	bot.Send(msg)
 }
