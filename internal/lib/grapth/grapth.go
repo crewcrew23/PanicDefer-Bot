@@ -50,12 +50,14 @@ func CreateGrapth(data []*dbmodel.History) ([]byte, error) {
 		return nil, err
 	}
 	successScater.GlyphStyle.Color = color.RGBA{G: 255, A: 255}
+	successScater.GlyphStyle.Radius = vg.Points(8)
 
 	errorScatter, err := plotter.NewScatter(errorPoints)
 	if err != nil {
 		return nil, err
 	}
 	errorScatter.GlyphStyle.Color = color.RGBA{R: 255, A: 255}
+	errorScatter.GlyphStyle.Radius = vg.Points(8)
 
 	p.Add(timeLine, successScater, errorScatter)
 	p.Legend.Add("Response Time", timeLine)
