@@ -14,9 +14,9 @@
 - 🏓 Continuous service pinging with statistics collection
 - 📅 Save last ping statistic 
 - 🔔 Real-time notifications when services go down
+- 📊 Historical ping data visualization
 
 ### 🚧 Planned Features
-- 📊 Historical ping data visualization
 - 📈 Performance metrics tracking
 - ⚠️ Warning system for abnormal response times
 
