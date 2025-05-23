@@ -1,5 +1,5 @@
 bot_token: <token>
-env: <one from>(debug, dev, prod)
+env: <one from>(debug, dev, prod, error)
 db: <postgresql_host> #for local test ?sslmode=disable
 time_to_ping: <time to ms>  #(default 60000 / 1 minutes )
 rabbitMQ:
