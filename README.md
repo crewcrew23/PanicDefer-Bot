@@ -19,7 +19,7 @@
 
 
 ### 🚧 Planned Features
-- 📈 Performance metrics tracking
+- temporary no
 
 ## 🛠️ System Requirements
 
