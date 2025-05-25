@@ -144,10 +144,10 @@ func main() {
 			continue
 
 		case command.HELP:
-			sendMessage(reqModel.ChatID, command.HELP_TXT, bot)
+			sendMessageMarkDown(reqModel.ChatID, command.HelpTXT(), bot)
 			continue
 		case command.START:
-			sendMessage(reqModel.ChatID, command.HELP_TXT, bot)
+			sendMessageMarkDown(reqModel.ChatID, command.HelpTXT(), bot)
 			continue
 
 		}
@@ -160,6 +160,12 @@ func main() {
 
 func sendMessage(chatID int64, message string, bot *tgbotapi.BotAPI) {
 	msg := tgbotapi.NewMessage(chatID, message)
+	bot.Send(msg)
+}
+
+func sendMessageMarkDown(chatID int64, message string, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(chatID, message)
+	msg.ParseMode = "Markdown"
 	bot.Send(msg)
 }
 
