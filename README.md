@@ -12,7 +12,7 @@
 
 ### ✅ Implemented
 - 🏓 Continuous service pinging with statistics collection
-- 📅 Save last ping statistic 
+- 📅 Save ping statistic 
 - 🔔 Real-time notifications when services go down
 - 📊 Historical ping data visualization
 - ⚠️ Warning system for abnormal response times
