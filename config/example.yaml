@@ -1,7 +1,8 @@
 bot_token: <token>
 env: <one from>(debug, dev, prod, error)
 db: <postgresql_host> #for local test ?sslmode=disable
-time_to_ping: <time to ms>  #(default 60000 / 1 minutes )
+time_to_ping: 60000  #(default 60000 / 1 minutes )
+ping_ttl_store: 60 #minutes: history writes will be deleted which are more than one hour old
 rabbitMQ:
   host: <mq_host>
   topic:
@@ -9,4 +10,4 @@ rabbitMQ:
     fromWorkerName: <topic_name>
 worker:
   pingWorker: 5 #default 5: count of workers
-  historyWorker: 2 #default 2:  of workers
+  historyWorker: 2 #default 2: count  of workers

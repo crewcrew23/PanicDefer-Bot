@@ -146,10 +146,10 @@ func RunMainPool(service *service.PingService, notifier *notification.TGNotifier
 	}
 }
 
-func DeleteOldWrites(db *sqlx.DB, log *slog.Logger) {
+func DeleteOldWrites(db *sqlx.DB, deleteTimeMin time.Duration, log *slog.Logger) {
 	log.Info("START DB CLEANER")
 	for {
-		timeForDelete := time.Now().UTC().Add(-1 * time.Hour)
+		timeForDelete := time.Now().UTC().Add(-deleteTimeMin * time.Minute)
 
 		tx, err := db.Beginx()
 		if err != nil {
