@@ -8,13 +8,14 @@ import (
 )
 
 type Config struct {
-	BotToken     string   `yaml:"bot_token" env-required:"true"`
-	MqConfig     MQConfig `yaml:"rabbitMQ" env-required:"true"`
-	Env          string   `yaml:"env" env-required:"true"`
-	DbPath       string   `yaml:"db" env-required:"true"`
-	TimeToPing   int      `yaml:"time_to_ping" env-required:"true"`
-	PingTTLStore int      `yaml:"ping_ttl_store" env-required:"true"`
-	Worker       Worker   `yaml:"worker" env-required:"true"`
+	BotToken            string   `yaml:"bot_token" env-required:"true"`
+	MqConfig            MQConfig `yaml:"rabbitMQ" env-required:"true"`
+	Env                 string   `yaml:"env" env-required:"true"`
+	DbPath              string   `yaml:"db" env-required:"true"`
+	TimeToPing          int      `yaml:"time_to_ping" env-required:"true"`
+	PingTTLStore        int      `yaml:"ping_ttl_store" env-required:"true"`
+	AbnormalCoefficient float64  `yaml:"abnormal_coefficient" env-required:"true"`
+	Worker              Worker   `yaml:"worker" env-required:"true"`
 }
 
 type MQConfig struct {

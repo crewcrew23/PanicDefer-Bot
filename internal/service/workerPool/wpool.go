@@ -27,7 +27,7 @@ type History struct {
 	Err  error
 }
 
-func mainWorker(id int, jobs <-chan Job, results chan<- Result, service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger) {
+func mainWorker(id int, jobs <-chan Job, results chan<- Result, abnormalCoefficient float64, service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger) {
 	log.Info("Start Worker", slog.Int("ID", id))
 	for job := range jobs {
 		start := time.Now()
@@ -48,7 +48,7 @@ func mainWorker(id int, jobs <-chan Job, results chan<- Result, service *service
 
 		avgResTime, err := service.AvgResTime(job.Item.Id)
 		if err == nil {
-			abnormalTimeMS := avgResTime * 2.2
+			abnormalTimeMS := avgResTime * abnormalCoefficient
 			abnormalDuration := time.Duration(abnormalTimeMS * float64(time.Millisecond))
 			if duration > abnormalDuration {
 				msg := AbnormalTimeMSG(job.Item.Url, avgResTime, duration, abnormalTimeMS)
@@ -108,13 +108,13 @@ func historyWorker(id int, results <-chan History, service *service.PingService,
 	}
 }
 
-func RunMainPool(service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger, mainConcurrency int, historyConcurrency int, interval time.Duration) {
+func RunMainPool(abnormalCoefficient float64, service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger, mainConcurrency int, historyConcurrency int, interval time.Duration) {
 	jobs := make(chan Job, 1000)
 	results := make(chan Result, 1000)
 	history := make(chan History, 1000)
 
 	for w := 0; w < mainConcurrency; w++ {
-		go mainWorker(w, jobs, results, service, notifier, log)
+		go mainWorker(w, jobs, results, abnormalCoefficient, service, notifier, log)
 	}
 
 	for w := 0; w < historyConcurrency; w++ {
