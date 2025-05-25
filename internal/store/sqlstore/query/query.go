@@ -100,4 +100,6 @@ const (
 		FROM history
 		WHERE service_id = $1 AND chat_id = $2
 	`
+
+	AVG_RES_TIME = `SELECT AVG(response_time_ms) FROM public.history WHERE service_id = $1`
 )

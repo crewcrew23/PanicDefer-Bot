@@ -27,7 +27,7 @@ type History struct {
 	Err  error
 }
 
-func mainWorker(id int, jobs <-chan Job, results chan<- Result, notifier *notification.TGNotifier, log *slog.Logger) {
+func mainWorker(id int, jobs <-chan Job, results chan<- Result, service *service.PingService, notifier *notification.TGNotifier, log *slog.Logger) {
 	log.Info("Start Worker", slog.Int("ID", id))
 	for job := range jobs {
 		start := time.Now()
@@ -44,6 +44,16 @@ func mainWorker(id int, jobs <-chan Job, results chan<- Result, notifier *notifi
 			}
 			results <- Result{Item: job.Item, Err: err}
 			continue
+		}
+
+		avgResTime, err := service.AvgResTime(job.Item.Id)
+		if err == nil {
+			abnormalTimeMS := avgResTime * 2.2
+			abnormalDuration := time.Duration(abnormalTimeMS * float64(time.Millisecond))
+			if duration > abnormalDuration {
+				msg := AbnormalTimeMSG(job.Item.Url, avgResTime, duration, abnormalTimeMS)
+				notifier.Send(job.Item.ChatID, job.Item.Url, msg)
+			}
 		}
 
 		res.Body.Close()
@@ -104,7 +114,7 @@ func RunMainPool(service *service.PingService, notifier *notification.TGNotifier
 	history := make(chan History, 1000)
 
 	for w := 0; w < mainConcurrency; w++ {
-		go mainWorker(w, jobs, results, notifier, log)
+		go mainWorker(w, jobs, results, service, notifier, log)
 	}
 
 	for w := 0; w < historyConcurrency; w++ {
@@ -189,4 +199,23 @@ func isReachable(url string) bool {
 	res.Body.Close()
 
 	return res.StatusCode < 500
+}
+
+func AbnormalTimeMSG(url string, avgResTime float64, duration time.Duration, abnormalTimeMS float64) string {
+	msg := fmt.Sprintf(`
+⚠️ *Обнаружено аномальное время ответа!*
+
+Сервис: %s
+Среднее время ответа: %.2f мс
+Текущее время ответа: %v
+Превышение порога: %.2f мс (в %.1f раз больше среднего)
+
+Рекомендуется проверить доступность сервиса.
+`,
+		url,
+		avgResTime,
+		duration.Round(time.Millisecond),
+		abnormalTimeMS-avgResTime,
+		abnormalTimeMS/avgResTime)
+	return msg
 }

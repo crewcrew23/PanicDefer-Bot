@@ -201,3 +201,15 @@ func (s *Store) History(id, chatId int64) ([]*dbmodel.History, error) {
 	s.log.Info("GET HISTORY OK")
 	return history, nil
 }
+
+func (s *Store) AvgResTime(id int64) (float64, error) {
+	var avgTime float64
+	err := s.db.Get(&avgTime, query.AVG_RES_TIME, id)
+	if err != nil {
+		s.log.Debug("Error from AvgResTime Method:")
+		s.log.Debug("Error", slog.String("Value", err.Error()))
+		return -1, dberrs.ErrGetRows
+	}
+
+	return avgTime, nil
+}

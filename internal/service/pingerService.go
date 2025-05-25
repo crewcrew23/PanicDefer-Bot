@@ -36,3 +36,12 @@ func (p *PingService) UpdateData(data []*dbmodel.Service) {
 func (p *PingService) SaveHistory(data []*dbmodel.Service) {
 	p.store.SaveHistory(data)
 }
+
+func (p *PingService) AvgResTime(id int64) (float64, error) {
+	res, err := p.store.AvgResTime(id)
+	if err != nil {
+		return -1, err
+	}
+
+	return res, nil
+}

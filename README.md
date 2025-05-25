@@ -15,11 +15,11 @@
 - 📅 Save last ping statistic 
 - 🔔 Real-time notifications when services go down
 - 📊 Historical ping data visualization
+- ⚠️ Warning system for abnormal response times
+
 
 ### 🚧 Planned Features
 - 📈 Performance metrics tracking
-- ⚠️ Warning system for abnormal response times
-
 
 ## 🛠️ System Requirements
 
