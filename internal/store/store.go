@@ -18,4 +18,5 @@ type Store interface {
 	DataForPing() ([]*dbmodel.Service, error)
 	UpdateData([]*dbmodel.Service)
 	SaveHistory([]*dbmodel.Service)
+	AvgResTime(id int64) (float64, error)
 }

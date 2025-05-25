@@ -142,6 +142,14 @@ func main() {
 
 			sendPhoto(serviceModel.ChatID, imgBytes, bot)
 			continue
+
+		case command.HELP:
+			sendMessage(reqModel.ChatID, command.HELP_TXT, bot)
+			continue
+		case command.START:
+			sendMessage(reqModel.ChatID, command.HELP_TXT, bot)
+			continue
+
 		}
 
 	}

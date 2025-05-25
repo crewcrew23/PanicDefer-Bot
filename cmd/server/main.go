@@ -51,9 +51,9 @@ func setupBot(token string, log *slog.Logger) (*tgbotapi.BotAPI, tgbotapi.Update
 }
 
 func parseCommand(upt *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logger) *requestmodel.RequestCommand {
-	if upt.Message.Command() == command.LIST {
+	if upt.Message.Command() == command.LIST || upt.Message.Command() == command.START || upt.Message.Command() == command.HELP {
 		return &requestmodel.RequestCommand{
-			Command: command.LIST,
+			Command: upt.Message.Command(),
 			Value:   "",
 			ChatID:  upt.Message.Chat.ID,
 		}
@@ -63,7 +63,9 @@ func parseCommand(upt *tgbotapi.Update, bot *tgbotapi.BotAPI, slogger *slog.Logg
 		upt.Message.Command() != command.REMOVE &&
 		upt.Message.Command() != command.GET &&
 		upt.Message.Command() != command.CH &&
-		upt.Message.Command() != command.HISTORY {
+		upt.Message.Command() != command.HISTORY &&
+		upt.Message.Command() != command.START &&
+		upt.Message.Command() != command.HELP {
 		sendTo("Неизвестная команда", upt, bot, slogger)
 		return nil
 	}
