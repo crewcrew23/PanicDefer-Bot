@@ -1,0 +1,14 @@
+bot_token: "BOT_TOKEN"
+env: "debug"
+db: "postgres://postgres:postgres@postgres:5432/healthcheck?sslmode=disable"
+time_to_ping: 60000 #ms
+ping_ttl_store: 60 #history writes will be deleted which are more than one hour old
+abnormal_coefficient: 2.2 #response time coefficient upon reaching which a notification will be sent
+rabbitMQ:
+  host: "amqp://admin:secret@rabbitmq:5672/"
+  topic:
+    fromServerName: "server_tasks" 
+    fromWorkerName: "processed_data"
+worker:
+  pingWorker: 5 #count of workers
+  historyWorker: 2 #count of workers
