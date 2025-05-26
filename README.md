@@ -40,6 +40,8 @@
 ### 🏃‍♂️ Local Setup
 1. **Configure the application**:
 ## Local
+you need register new telegram bot and enter you bot token into config <br>
+
 ```
 cp config/example.yaml config/local.yaml
 nano config/local.yaml  # Edit configuration
@@ -61,4 +63,12 @@ make run-worker
 ```
 
 ## Docker
-will be
+you need register new telegram bot and enter you bot token into config <br>
+docker-compose provide default credentials for DB and rabbitMQ <br>
+if you need you can change them <br>
+base config named docker.yalm is contained in ./config/docker.yalm <br>
+if you changed credo from docker-compose you need change credo in ./config/docker.yalm <br>
+
+if you renamed the config file, you need to specify the new path in the .env file <br>
+
+after ``` docker-compose up --build -d ```
